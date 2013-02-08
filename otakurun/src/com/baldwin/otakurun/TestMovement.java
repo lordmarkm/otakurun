@@ -1,13 +1,19 @@
 package com.baldwin.otakurun;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.baldwin.libgdx.commons.BasePlatform;
 import com.baldwin.libgdx.commons.SimpleTiledMapHelper;
 import com.baldwin.libgdx.commons.entity.Entity;
 import com.baldwin.otakurun.entity.Tokine;
+import com.baldwin.otakurun.entity.TokineState;
+import com.baldwin.otakurun.util.Constants;
 
 /**
  * 3rd class written, meant to test physics and stuff.
@@ -44,8 +50,6 @@ public class TestMovement extends BasePlatform {
 	 * Common practice is to use a constant to convert pixels to and from
 	 * "meters".
 	 */
-	public static final float PIXELS_PER_METER = 60.0f;
-	
 	private Box2DDebugRenderer debugRenderer;
 	
 	@Override
@@ -61,7 +65,7 @@ public class TestMovement extends BasePlatform {
 		tiledMapHelper = new SimpleTiledMapHelper();
 		tiledMapHelper.setResourceDirectory("data/tiledmap/cave");
 		tiledMapHelper.loadMap("data/tiledmap/cave/cave.tmx");
-		tiledMapHelper.prepareCamera(screenWidth, screenHeight);
+		camera = (OrthographicCamera) tiledMapHelper.prepareCamera(screenWidth, screenHeight);
 
 		/**
 		 * You can set the world's gravity in its constructor. Here, the gravity
@@ -70,34 +74,32 @@ public class TestMovement extends BasePlatform {
 		world = new World(new Vector2(0.0f, -10.0f), true);
 		
 		tokine = new Tokine();
-		tokine.initBody(world, PIXELS_PER_METER);
+		tokine.initBody(world, Constants.PIXELS_PER_METER);
 
-		tiledMapHelper.loadCollisions("data/tiledmap/cave/CaveBaseForeground-collisions.txt", world, PIXELS_PER_METER);
+		tiledMapHelper.loadCollisions("data/tiledmap/cave/CaveBaseForeground-collisions.txt", world, Constants.PIXELS_PER_METER);
 
 		debugRenderer = new Box2DDebugRenderer(true, true, true, true, true);
 
 		lastRender = System.nanoTime();
+		
 	}
 
 	@Override
 	public void render() {
 		long now = System.nanoTime();
-		
-		clearScreen();
 		update();
+		clearScreen();
 		
-		tiledMapHelper.getCamera().position.x = PIXELS_PER_METER * tokine.body.getPosition().x;
+//		tiledMapHelper.getCamera().position.x = PIXELS_PER_METER * tokine.body.getPosition().x;
+		camera.position.x = Constants.PIXELS_PER_METER * tokine.body.getPosition().x;
+		
 		handleScreenBoundaries();
 
 		tiledMapHelper.getCamera().update();
 		tiledMapHelper.render();
 
 		batch.begin();
-		
-		tokine.render(batch);
-		
-
-		
+		tokine.render(batch, camera);
 		batch.end();
 		
 		/**
@@ -106,9 +108,9 @@ public class TestMovement extends BasePlatform {
 		 */
 		camera.update();
 		debugRenderer.render(world, tiledMapHelper.getCamera().combined.scale(
-				PIXELS_PER_METER,
-				PIXELS_PER_METER,
-				PIXELS_PER_METER));
+				Constants.PIXELS_PER_METER,
+				Constants.PIXELS_PER_METER,
+				Constants.PIXELS_PER_METER));
 		
 		if (now - lastRender < 30000000) { // 30 ms, ~33FPS
 			try {
@@ -117,6 +119,7 @@ public class TestMovement extends BasePlatform {
 			}
 		}
 		lastRender = now;
+	
 	}
 
 	private void handleScreenBoundaries() {
@@ -143,12 +146,7 @@ public class TestMovement extends BasePlatform {
 	}
 	
 	private void update() {
-		
 		tokine.update();
-		
-		if(tokine.body.getLinearVelocity().y == 0) {
-			tokine.body.applyLinearImpulse(new Vector2(0f, 2f), tokine.body.getWorldCenter());
-		}
 		world.step(Gdx.graphics.getDeltaTime(), 3, 3);
 	}
 	
@@ -156,13 +154,4 @@ public class TestMovement extends BasePlatform {
 	public void dispose() {
 		tiledMapHelper.dispose();
 	}
-	
-	@Override
-	public void resize(int width, int height) {}
-	
-	@Override
-	public void pause() {}
-	
-	@Override
-	public void resume() {}
 }

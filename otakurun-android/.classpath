@@ -2,10 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/otakurun"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="lib" path="libs/gdx-backend-android.jar" sourcepath="libs/gdx-backend-android-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="/otakurun/libs/gdx.jar" sourcepath="/otakurun/libs/gdx-sources.jar"/>
 	<classpathentry kind="lib" path="libs/gdx-backend-android-sources.jar"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/otakurun"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/LibgdxCommons"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

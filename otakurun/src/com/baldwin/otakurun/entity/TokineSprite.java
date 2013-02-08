@@ -35,6 +35,22 @@ import com.baldwin.libgdx.commons.entity.StatefulSprite;
  * 601,140 26x51
  * 630,140 27x51
  * 
+ * Jump start
+ * 322,50 32x56
+ * 358,50 37x56
+ * 
+ * Airborne rising
+ * 403,52 35x54
+ * 442,52 35x54
+ * 
+ * Airborne falling
+ * 477,26 36x80
+ * 518,26 36x80
+ * 
+ * Land (after airborne)
+ * 555,64 32x42
+ * 591,64 29x42
+ * 
  * @author mbmartinez
  * 
  * Handle only animations here! Movement, acceleration, collisions, etc should
@@ -42,11 +58,6 @@ import com.baldwin.libgdx.commons.entity.StatefulSprite;
  */
 
 public class TokineSprite extends StatefulSprite {
-
-	final String S_READY = "ready";
-	final String S_ACCEL = "accel";
-	final String S_RUN = "run";
-	
 	public TokineSprite() {
 		super();
 		sheet = new Texture(Gdx.files.internal("data/sprites/tokine.png"));
@@ -54,11 +65,16 @@ public class TokineSprite extends StatefulSprite {
 		TextureRegion readyRegion = new TextureRegion(sheet, 60, 57, 160, 49);
 		TextureRegion[] readySequence = readyRegion.split(32, 49)[0];
 		Animation readyAnimation = new Animation(0.15f, readySequence);
-		sequences.put(S_READY, readyAnimation);
+		sequences.put(TokineState.ready, readyAnimation);
 
-		TextureRegion accelerating = new TextureRegion(sheet, 57, 145, 36, 46);
-		Animation acceleratingAnimation = new Animation(0.15f, accelerating);
-		sequences.put(S_ACCEL, acceleratingAnimation);
+		TextureRegion a1 = new TextureRegion(sheet, 57, 145, 36, 46);
+		/*
+		 * stupid workaround for Animation.isAnimationFinished not working as expected.
+		 * Add an additional frame to a terminating sequence then see also
+		 * TestMove#isAnimationFinished()
+		 */
+		Animation acceleratingAnimation = new Animation(0.15f, a1, a1);
+		sequences.put(TokineState.accelerating, acceleratingAnimation);
 
 		TextureRegion run1 = new TextureRegion(sheet, 95, 140, 38, 49);
 		TextureRegion run2 = new TextureRegion(sheet, 133, 140, 46, 49);
@@ -71,9 +87,36 @@ public class TokineSprite extends StatefulSprite {
 		TextureRegion run9 = new TextureRegion(sheet, 440, 140, 40, 51);
 		TextureRegion run10 = new TextureRegion(sheet, 482, 140, 40, 51);
 		Animation run = new Animation(0.065f, new TextureRegion[]{run1,run2,run3,run4,run5,run6,run7,run8,run9,run10});
-		sequences.put(S_RUN, run);
+		sequences.put(TokineState.run, run);
+
+		TextureRegion d1 = new TextureRegion(sheet, 527, 140, 39, 51);
+		TextureRegion d2 = new TextureRegion(sheet, 566, 140, 29, 51);
+		TextureRegion d3 = new TextureRegion(sheet, 601, 140, 26, 51);
+		TextureRegion d4 = new TextureRegion(sheet, 630, 140, 27, 51);
+		Animation decelerating = new Animation(0.10f, new TextureRegion[]{d1, d2, d3, d4, d4});
+		sequences.put(TokineState.decelerating, decelerating);
+
+		TextureRegion js1 = new TextureRegion(sheet, 322, 50, 32, 56);
+		TextureRegion js2 = new TextureRegion(sheet, 358, 50, 37, 56);
+		Animation js = new Animation(0.10f, js1, js2, js2);
+		sequences.put(TokineState.jump_start, js);
+
+		TextureRegion ar1 = new TextureRegion(sheet, 403, 52, 35, 54);
+		TextureRegion ar2 = new TextureRegion(sheet, 442, 52, 35, 54);
+		Animation ar = new Animation(0.15f, ar1, ar2);
+		sequences.put(TokineState.airborne_rising, ar);
+
+		TextureRegion af1 = new TextureRegion(sheet, 477, 26, 36, 80);
+		TextureRegion af2 = new TextureRegion(sheet, 518, 26, 36, 80);
+		Animation af = new Animation(0.15f, af1, af2);
+		sequences.put(TokineState.airborne_falling, af);
+
+		TextureRegion land1 = new TextureRegion(sheet, 555, 64, 32, 42);
+		TextureRegion land2 = new TextureRegion(sheet, 591, 64, 29, 42);
+		Animation land = new Animation(0.15f, land1, land2, land2);
+		sequences.put(TokineState.landing, land);
 		
-		this.state = S_RUN;
+		this.state = TokineState.ready;
 	}
 
 }

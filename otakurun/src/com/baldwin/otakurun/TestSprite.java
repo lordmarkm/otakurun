@@ -1,7 +1,6 @@
 package com.baldwin.otakurun;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.baldwin.libgdx.commons.BasePlatform;
 import com.baldwin.libgdx.commons.SimpleTiledMapHelper;
 import com.baldwin.libgdx.commons.entity.StatefulSprite;

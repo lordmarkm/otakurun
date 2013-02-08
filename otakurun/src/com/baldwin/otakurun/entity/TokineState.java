@@ -6,6 +6,9 @@ public enum TokineState {
 	accelerating,
 	run,
 	decelerating,
-	airborne
+	jump_start,
+	airborne_rising,
+	airborne_falling,
+	landing
 	
 }
