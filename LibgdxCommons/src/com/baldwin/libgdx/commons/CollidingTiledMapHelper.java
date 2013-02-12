@@ -1,5 +1,7 @@
 package com.baldwin.libgdx.commons;
 
+import static com.baldwin.libgdx.physics.Constants.*;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
@@ -109,7 +111,11 @@ public class CollidingTiledMapHelper {
 		tileMapRenderer = new TileMapRenderer(map, tileAtlas, 16, 16);
 	}
 
-	public void loadCollisions(World world, float pixelsPerMeter) {
+	private void buildWall(World world, int start, int y_index, int length) {
+		Box2DFactory.createWall(world, map.tileWidth*start / (2f*PIXELS_PER_METER),  (map.tileHeight*(map.height-y_index) / (2f*PIXELS_PER_METER)), map.tileWidth*(start+length) / (2f*PIXELS_PER_METER), (map.tileHeight*(map.height - (y_index+1f)) / (2f*PIXELS_PER_METER)), 0f);
+	}
+	
+	public void loadCollisions(World world) {
 		TiledLayer collisionLayer = map.layers.get(1);
 		if(null == collisionLayer) {
 			throw new IllegalArgumentException("Collision layer not found!");
@@ -117,34 +123,45 @@ public class CollidingTiledMapHelper {
 		
 		String collide = "collide";
 		String yes = "yes";
+		
+		int last = -1;
+		int length = 0;
+		
 		for(int i = 0; i < collisionLayer.tiles.length; i++) {
 			for(int j = 0; j < collisionLayer.tiles[i].length; j++) {
-				if(0 == collisionLayer.tiles[i][j]) continue;
+				if(0 == collisionLayer.tiles[i][j]) {
+					if(last != -1) {
+						buildWall(world, last, i, length);
+						last = -1;
+						length = 0;
+					}
+					continue;
+				}
+				
 				String prop = map.getTileProperty(collisionLayer.tiles[i][j], collide);
 				if(yes.equals(prop)) {
 					//create colliding body here?
 					System.out.println(map.height + " " + i);
-					Box2DFactory.createWall(world, map.tileWidth*j / (2f*pixelsPerMeter),  (map.tileHeight*(map.height-i) / (2f*pixelsPerMeter)), map.tileWidth*(j+1f) / (2f*pixelsPerMeter), (map.tileHeight*(map.height - (i+1f)) / (2f*pixelsPerMeter)), 0f);
+					//Box2DFactory.createWall(world, map.tileWidth*j / (2f*PIXELS_PER_METER),  (map.tileHeight*(map.height-i) / (2f*PIXELS_PER_METER)), map.tileWidth*(j+1f) / (2f*PIXELS_PER_METER), (map.tileHeight*(map.height - (i+1f)) / (2f*PIXELS_PER_METER)), 0f);
+					if(last == -1) {
+						last = j;
+					}
+					length++;
+				} else if(last != 0) {
+					//build wall with start at index last and length = 0;
+					buildWall(world, last, i, length);
+					last = -1;
+					length = 0;
 				}
 			}
+			
+			//if y changes start a new wall
+			if(last != -1) {
+				buildWall(world, last, i, length);
+				last = -1;
+				length = 0;
+			}
 		}
-		
-//		for (int _y = 0; _y < getMap().height; _y++) {
-//			for (int _x = 0; _x < getMap().width; _x++) {
-//				
-//				int y = (getMap().height - 1) - _y;
-//				int x = _x;
-//				int tileType = getMap().layers.get(1).tiles[y][x];
-//				String prop = map.getTileProperty(tileType, collide);
-//				
-//				if(yes.equals(prop)) {
-//					//create colliding body here?
-//					Box2DFactory.createWall(world, map.tileWidth*x, map.height - map.tileWidth*y, (map.tileWidth*x) + map.tileWidth, map.height - ((map.tileWidth*y) + map.tileWidth), 0f);
-//				}
-//			}
-//		}
-		
-//		Box2DFactory.createWall(world, 50 / (2*pixelsPerMeter), 50/ (2*pixelsPerMeter), 100/ (2*pixelsPerMeter), 100/ (2*pixelsPerMeter), 0f);
 		
 		/**
 		 * Drawing a boundary around the entire map. We can't use a box because
@@ -156,22 +173,16 @@ public class CollidingTiledMapHelper {
 		Body groundBody = world.createBody(groundBodyDef);
 
 		EdgeShape mapBounds = new EdgeShape();
-		mapBounds.set(new Vector2(0.0f, 0.0f), new Vector2(getWidth()
-				/ pixelsPerMeter, 0.0f));
+		mapBounds.set(new Vector2(0.0f, 0.0f), new Vector2(getWidth() / PIXELS_PER_METER, 0.0f));
 		groundBody.createFixture(mapBounds, 0);
 
-		mapBounds.set(new Vector2(0.0f, getHeight() / pixelsPerMeter),
-				new Vector2(getWidth() / pixelsPerMeter, getHeight()
-						/ pixelsPerMeter));
+		mapBounds.set(new Vector2(0.0f, getHeight() / PIXELS_PER_METER), new Vector2(getWidth() / PIXELS_PER_METER, getHeight() / PIXELS_PER_METER));
 		groundBody.createFixture(mapBounds, 0);
 
-		mapBounds.set(new Vector2(0.0f, 0.0f), new Vector2(0.0f,
-				getHeight() / pixelsPerMeter));
+		mapBounds.set(new Vector2(0.0f, 0.0f), new Vector2(0.0f, getHeight() / PIXELS_PER_METER));
 		groundBody.createFixture(mapBounds, 0);
 
-		mapBounds.set(new Vector2(getWidth() / pixelsPerMeter, 0.0f),
-				new Vector2(getWidth() / pixelsPerMeter, getHeight()
-						/ pixelsPerMeter));
+		mapBounds.set(new Vector2(getWidth() / PIXELS_PER_METER, 0.0f), new Vector2(getWidth() / PIXELS_PER_METER, getHeight() / PIXELS_PER_METER));
 		groundBody.createFixture(mapBounds, 0);
 	}
 
@@ -195,8 +206,7 @@ public class CollidingTiledMapHelper {
 	 */
 	public OrthographicCamera getCamera() {
 		if (camera == null) {
-			throw new IllegalStateException(
-					"getCamera() called out of sequence");
+			throw new IllegalStateException("getCamera() called out of sequence");
 		}
 		return camera;
 	}

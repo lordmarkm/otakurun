@@ -9,6 +9,8 @@ public enum TokineState {
 	jump_start,
 	airborne_rising,
 	airborne_falling,
-	landing
-	
+	landing, 
+	ketsu,
+	ketsu_in_air
+
 }

@@ -18,7 +18,7 @@
 		<link>
 			<name>assets</name>
 			<type>2</type>
-			<location>C:/Users/markm/Desktop/dev/android/libgdx/otakurun/otakurun-android/assets</location>
+			<location>/home/mbmartinez/git/otakurun/otakurun-android/assets</location>
 		</link>
 	</linkedResources>
 </projectDescription>

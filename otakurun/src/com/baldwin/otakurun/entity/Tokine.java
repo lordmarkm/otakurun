@@ -1,16 +1,7 @@
 package com.baldwin.otakurun.entity;
 
-import static com.baldwin.otakurun.entity.Command.jump;
-import static com.baldwin.otakurun.entity.Command.move_left;
-import static com.baldwin.otakurun.entity.Command.move_right;
-import static com.baldwin.otakurun.entity.TokineState.accelerating;
-import static com.baldwin.otakurun.entity.TokineState.airborne_falling;
-import static com.baldwin.otakurun.entity.TokineState.airborne_rising;
-import static com.baldwin.otakurun.entity.TokineState.decelerating;
-import static com.baldwin.otakurun.entity.TokineState.jump_start;
-import static com.baldwin.otakurun.entity.TokineState.landing;
-import static com.baldwin.otakurun.entity.TokineState.ready;
-import static com.baldwin.otakurun.entity.TokineState.run;
+import static com.baldwin.otakurun.entity.Command.*;
+import static com.baldwin.otakurun.entity.TokineState.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +19,9 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.baldwin.libgdx.commons.entity.Entity;
-import com.baldwin.otakurun.util.Constants;
+import com.baldwin.libgdx.commons.util.DisposableObjectPool;
+import com.baldwin.libgdx.physics.Constants;
+import com.baldwin.otakurun.entity.KetsuMetsu.KetsuMetsuType;
 
 public class Tokine extends Entity {
 
@@ -43,8 +36,11 @@ public class Tokine extends Entity {
 	
 	private float stateTime = 0f;
 
-	public Tokine() {
+	private DisposableObjectPool pool;
+	
+	public Tokine(DisposableObjectPool pool) {
 		this.sprite = new TokineSprite();
+		this.pool = pool;
 		state(ready);
 	}
 
@@ -104,6 +100,9 @@ public class Tokine extends Entity {
 				case move_right:
 					state(accelerating);
 					break;
+				case fire:
+					state(ketsu);
+					break;
 				}
 				break;
 			case accelerating:
@@ -122,7 +121,10 @@ public class Tokine extends Entity {
 					if(isAnimationFinished(sprite.getSequence())) {
 						state(run);	
 					}
-					break;	
+					break;
+				case fire:
+					state(ketsu);
+					break;
 				}
 				break;
 			case run:
@@ -136,7 +138,9 @@ public class Tokine extends Entity {
 				case move_right:
 					body.applyLinearImpulse(rightImpulse, body.getWorldCenter());
 					break;	
-				case none:
+				case fire:
+					state(ketsu);
+					break;
 				}
 				break;
 			case jump_start:
@@ -146,6 +150,9 @@ public class Tokine extends Entity {
 					break;
 				case move_right:
 					body.applyLinearImpulse(rightImpulse, body.getWorldCenter());
+					break;
+				case fire:
+					state(ketsu);
 					break;
 				}
 				break;
@@ -157,6 +164,9 @@ public class Tokine extends Entity {
 				case move_right:
 					body.applyLinearImpulse(airborne_rightImpulse, body.getWorldCenter());
 					break;
+				case fire:
+					state(ketsu_in_air);
+					break;
 				}
 				break;
 			case airborne_falling:
@@ -166,6 +176,9 @@ public class Tokine extends Entity {
 					break;
 				case move_right:
 					body.applyLinearImpulse(airborne_rightImpulse, body.getWorldCenter());
+					break;
+				case fire:
+					state(ketsu_in_air);
 					break;
 				}
 				break;
@@ -182,7 +195,10 @@ public class Tokine extends Entity {
 				case move_right:
 					body.applyLinearImpulse(rightImpulse, body.getWorldCenter());
 					state(accelerating);
-					break;	
+					break;
+				case fire:
+					state(ketsu);
+					break;
 				}
 				break;
 			}
@@ -235,6 +251,28 @@ public class Tokine extends Entity {
 				state(landing);
 			}
 			break;
+		case ketsu:
+			if(sprite.getSequence().getKeyFrameIndex(stateTime) == 1) {
+				spawnKetsu();
+			}
+			if(isAnimationFinished(sprite.getSequence())) {
+				state(ready);
+			}
+			break;
+		case ketsu_in_air:
+			if(sprite.getSequence().getKeyFrameIndex(stateTime) == 1) {
+				spawnKetsu();
+			}
+			if(isAnimationFinished(sprite.getSequence())) {
+				if(body.getLinearVelocity().y > 0) {
+					state(airborne_rising);
+				} else if(body.getLinearVelocity().y < 0) {
+					state(airborne_falling);
+				} else {
+					state(ready);
+				}
+			}
+			break;
 		}
 
 		sprite.state = this.state;
@@ -262,7 +300,15 @@ public class Tokine extends Entity {
 		case decelerating:
 		case ready:
 		case landing:
-			if(Gdx.input.isKeyPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) commands.add(jump);
+			//fire command excludes all other commands
+			if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+				commands.add(fire);
+				return commands;
+			} 
+			
+			if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isTouched()) {
+				commands.add(jump);
+			}
 			if(Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
 				commands.add(move_right);
 				faceright = true;
@@ -274,6 +320,12 @@ public class Tokine extends Entity {
 		case jump_start:
 		case airborne_rising:
 		case airborne_falling:
+			//fire command excludes all other commands
+			if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+				commands.add(fire);
+				return commands;
+			}
+			
 			if(Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
 				commands.add(move_right);
 				faceright = true;
@@ -281,6 +333,10 @@ public class Tokine extends Entity {
 				commands.add(move_left);
 				faceright = false;
 			}
+			break;
+		case ketsu:
+			break;
+		case ketsu_in_air:
 			break;
 		default:
 			throw new RuntimeException("Unhandled state: " + state);
@@ -315,6 +371,12 @@ public class Tokine extends Entity {
 		case landing:
 			if(index >= 2) return true;
 			break;
+		case ketsu:
+			if(index >= 5) return true;
+			break;
+		case ketsu_in_air:
+			if(index >= 5) return true;
+			break;
 		default: 
 			throw new IllegalStateException("Unhandled state: " + state);
 		}
@@ -322,7 +384,7 @@ public class Tokine extends Entity {
 	}
 	
 	@Override
-	public TextureRegion render(SpriteBatch batch, Camera camera) {
+	public void render(SpriteBatch batch, Camera camera) {
 		TextureRegion frame = sprite.getSequence().getKeyFrame(stateTime, true);
 		if((faceright && frame.isFlipX()) || (!faceright && !frame.isFlipX())) {
 			frame.flip(true, false);
@@ -335,8 +397,6 @@ public class Tokine extends Entity {
 		Vector3 pos = getPosition();
 		camera.project(pos);
 		batch.draw(frame, pos.x, pos.y);
-		
-		return frame;
 	}
 	
 	public Vector3 getPosition() {
@@ -346,4 +406,14 @@ public class Tokine extends Entity {
 		float tokiney = Constants.PIXELS_PER_METER * body.getPosition().y	- tokineframe.getRegionHeight() / 2;
 		return new Vector3().set(tokinex, tokiney, 0);
 	}
+	
+	private void spawnKetsu() {
+		KetsuMetsu ketsu = new KetsuMetsu(body.getWorld(), this, KetsuMetsuType.ketsu);
+		pool.add(ketsu);
+	}
+	
+	@Override
+	public boolean isDisposable() {return false;}
+	@Override
+	public void dispose() {}
 }

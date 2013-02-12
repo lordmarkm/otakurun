@@ -13,10 +13,10 @@ import com.baldwin.libgdx.physics.Constants;
 import com.baldwin.otakurun.entity.Tokine;
 
 /**
- * 5th test class written, meant to test pcollisions with static objects.
+ * 5th test class written, meant to test projectile generation projectile collision with static objects
  * @author mbmartinez
  */
-public class TestTileCollisions extends BasePlatform {
+public class TestProjectiles extends BasePlatform {
 	private long lastRender;
 
 	private CollidingTiledMapHelper tiledMapHelper;
@@ -25,10 +25,10 @@ public class TestTileCollisions extends BasePlatform {
 	
 	private World world;
 	private Entity tokine;
-
-	private DisposableObjectPool pool;
 	
 	private Box2DDebugRenderer debugRenderer;
+	
+	private DisposableObjectPool pool;
 	
 	@Override
 	public void create() {
@@ -72,6 +72,7 @@ public class TestTileCollisions extends BasePlatform {
 		tiledMapHelper.render();
 		batch.begin();
 		tokine.render(batch, camera);
+		pool.render(batch, camera);
 		batch.end();
 		
 		/**
@@ -101,23 +102,22 @@ public class TestTileCollisions extends BasePlatform {
 		if (tiledMapHelper.getCamera().position.x < screenWidth / 2) {
 			tiledMapHelper.getCamera().position.x = screenWidth / 2;
 		}
-		if (tiledMapHelper.getCamera().position.x >= tiledMapHelper.getWidth()
-				- screenWidth / 2) {
-			tiledMapHelper.getCamera().position.x = tiledMapHelper.getWidth()
-					- screenWidth / 2;
+		
+		if (tiledMapHelper.getCamera().position.x >= tiledMapHelper.getWidth() - screenWidth / 2) {
+			tiledMapHelper.getCamera().position.x = tiledMapHelper.getWidth() - screenWidth / 2;
 		}
 
 		if (tiledMapHelper.getCamera().position.y < screenHeight / 2) {
 			tiledMapHelper.getCamera().position.y = screenHeight / 2;
 		}
-		if (tiledMapHelper.getCamera().position.y >= tiledMapHelper.getHeight()
-				- screenHeight / 2) {
-			tiledMapHelper.getCamera().position.y = tiledMapHelper.getHeight()
-					- screenHeight / 2;
+		
+		if (tiledMapHelper.getCamera().position.y >= tiledMapHelper.getHeight()	- screenHeight / 2) {
+			tiledMapHelper.getCamera().position.y = tiledMapHelper.getHeight() - screenHeight / 2;
 		}
 	}
 	
 	private void update() {
+		pool.update();
 		tokine.update();
 		world.step(Gdx.graphics.getDeltaTime(), 3, 3);
 	}

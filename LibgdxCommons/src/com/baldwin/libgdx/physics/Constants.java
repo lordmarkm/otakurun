@@ -1,4 +1,4 @@
-package com.baldwin.otakurun.util;
+package com.baldwin.libgdx.physics;
 
 public class Constants {
 

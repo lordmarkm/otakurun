@@ -51,6 +51,13 @@ import com.baldwin.libgdx.commons.entity.StatefulSprite;
  * 555,64 32x42
  * 591,64 29x42
  * 
+ * Ketsu
+ * 58,383 36x50
+ * 102,383 35x50
+ * 144,383 33x50
+ * 185,383 30x50
+ * 221,383 30x50
+ * 
  * @author mbmartinez
  * 
  * Handle only animations here! Movement, acceleration, collisions, etc should
@@ -60,7 +67,7 @@ import com.baldwin.libgdx.commons.entity.StatefulSprite;
 public class TokineSprite extends StatefulSprite {
 	public TokineSprite() {
 		super();
-		sheet = new Texture(Gdx.files.internal("data/sprites/tokine.png"));
+		sheet = OtakurunTextureAtlas.kekkaishi;
 
 		TextureRegion readyRegion = new TextureRegion(sheet, 60, 57, 160, 49);
 		TextureRegion[] readySequence = readyRegion.split(32, 49)[0];
@@ -115,6 +122,15 @@ public class TokineSprite extends StatefulSprite {
 		TextureRegion land2 = new TextureRegion(sheet, 591, 64, 29, 42);
 		Animation land = new Animation(0.15f, land1, land2, land2);
 		sequences.put(TokineState.landing, land);
+		
+		TextureRegion ket1 = new TextureRegion(sheet, 58, 383, 36, 50);
+		TextureRegion ket2 = new TextureRegion(sheet, 102, 383, 35, 50);
+		TextureRegion ket3 = new TextureRegion(sheet, 144, 383, 33, 50);
+		TextureRegion ket4 = new TextureRegion(sheet, 185, 383, 30, 50);
+		TextureRegion ket5 = new TextureRegion(sheet, 221, 383, 30, 50);
+		Animation ketsu = new Animation(0.15f, ket1, ket2, ket3, ket4, ket5, ket5);
+		sequences.put(TokineState.ketsu, ketsu);
+		sequences.put(TokineState.ketsu_in_air, ketsu);
 		
 		this.state = TokineState.ready;
 	}

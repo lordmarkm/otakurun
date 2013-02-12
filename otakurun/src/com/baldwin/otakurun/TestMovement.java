@@ -8,8 +8,9 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.baldwin.libgdx.commons.BasePlatform;
 import com.baldwin.libgdx.commons.SimpleTiledMapHelper;
 import com.baldwin.libgdx.commons.entity.Entity;
+import com.baldwin.libgdx.commons.util.DisposableObjectPool;
+import com.baldwin.libgdx.physics.Constants;
 import com.baldwin.otakurun.entity.Tokine;
-import com.baldwin.otakurun.util.Constants;
 
 /**
  * 3rd class written, meant to test physics and stuff.
@@ -48,6 +49,8 @@ public class TestMovement extends BasePlatform {
 	 */
 	private Box2DDebugRenderer debugRenderer;
 	
+	private DisposableObjectPool pool;
+	
 	@Override
 	public void create() {
 		super.create();
@@ -69,7 +72,9 @@ public class TestMovement extends BasePlatform {
 		 */
 		world = new World(new Vector2(0.0f, -10.0f), true);
 		
-		tokine = new Tokine();
+		pool = new DisposableObjectPool();
+		
+		tokine = new Tokine(pool);
 		tokine.initBody(world, Constants.PIXELS_PER_METER);
 
 		tiledMapHelper.loadCollisions("data/tiledmap/cave/CaveBaseForeground-collisions.txt", world, Constants.PIXELS_PER_METER);

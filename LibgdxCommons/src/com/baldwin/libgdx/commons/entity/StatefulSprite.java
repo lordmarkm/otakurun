@@ -12,7 +12,7 @@ public abstract class StatefulSprite {
 
 	public Object state;
 	protected Texture sheet;
-	protected SpriteMap sequences = new SpriteMap();
+	protected static SpriteMap sequences = new SpriteMap();
 	
 	public Animation getSequence() {
 		return sequences.get(state);
