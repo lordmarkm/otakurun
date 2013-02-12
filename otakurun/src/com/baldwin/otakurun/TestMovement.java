@@ -2,17 +2,13 @@ package com.baldwin.otakurun;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.baldwin.libgdx.commons.BasePlatform;
 import com.baldwin.libgdx.commons.SimpleTiledMapHelper;
 import com.baldwin.libgdx.commons.entity.Entity;
 import com.baldwin.otakurun.entity.Tokine;
-import com.baldwin.otakurun.entity.TokineState;
 import com.baldwin.otakurun.util.Constants;
 
 /**

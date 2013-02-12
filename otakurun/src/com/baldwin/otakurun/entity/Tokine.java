@@ -32,6 +32,9 @@ import com.baldwin.otakurun.util.Constants;
 
 public class Tokine extends Entity {
 
+	final float sprite_width = 30f;
+	final float sprite_height = 50f;
+	
 	public TokineState state;
 	public boolean faceright = true;
 	
@@ -54,7 +57,7 @@ public class Tokine extends Entity {
 		body.setFixedRotation(true);
 
 		PolygonShape tokineShape = new PolygonShape();
-		tokineShape.setAsBox(30f / (2*pixelsPerMeter), 50f / (2*pixelsPerMeter));
+		tokineShape.setAsBox(sprite_width / (2*pixelsPerMeter), sprite_height / (2*pixelsPerMeter));
 
 		FixtureDef tokineFixtureDef = new FixtureDef();
 		tokineFixtureDef.shape = tokineShape;
