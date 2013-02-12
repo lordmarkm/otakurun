@@ -128,7 +128,7 @@ public class TokineSprite extends StatefulSprite {
 		TextureRegion ket3 = new TextureRegion(sheet, 144, 383, 33, 50);
 		TextureRegion ket4 = new TextureRegion(sheet, 185, 383, 30, 50);
 		TextureRegion ket5 = new TextureRegion(sheet, 221, 383, 30, 50);
-		Animation ketsu = new Animation(0.15f, ket1, ket2, ket3, ket4, ket5, ket5);
+		Animation ketsu = new Animation(0.065f, ket1, ket2, ket3, ket4, ket5, ket5);
 		sequences.put(TokineState.ketsu, ketsu);
 		sequences.put(TokineState.ketsu_in_air, ketsu);
 		

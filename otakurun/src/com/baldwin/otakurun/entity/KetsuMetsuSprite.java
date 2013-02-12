@@ -34,7 +34,7 @@ public class KetsuMetsuSprite extends StatefulSprite {
 		TextureRegion ket8 = new TextureRegion(sheet, 257, 638, 26, 6);
 		TextureRegion ket9 = new TextureRegion(sheet, 289, 638, 30, 6);
 		TextureRegion ket10 = new TextureRegion(sheet, 325, 638, 28, 6);
-		Animation ketsu = new Animation(0.065f, ket1, ket2, ket3, ket4, ket5, ket6, ket7, ket8, ket9, ket10);
+		Animation ketsu = new Animation(0.065f, ket1, ket2, ket3, ket4, ket5, ket6, ket7, ket8, ket9, ket10, ket10);
 		sequences.put(KetsuMetsuState.travel, ketsu);
 	}
 	
