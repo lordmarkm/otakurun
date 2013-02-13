@@ -1,6 +1,7 @@
 package com.baldwin.otakurun.entity;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -36,7 +37,13 @@ public class MetsuBlock implements Renderable {
 		Vector3 pos = new Vector3(Utils.toPixels(body.getPosition().x) - body_width/2, Utils.toPixels(body.getPosition().y) - body_height/2, 0f);
 		camera.project(pos);
 		sprite.setPosition(pos.x - body_width/4, pos.y - body_height/4);
-		sprite.draw(batch, 0.7f);
+		
+		
+		long life = duration - (System.currentTimeMillis() - created);
+		
+		float alpha = (float)life/(float)duration;
+		if(alpha < 0) alpha = 0f;
+		sprite.draw(batch, alpha);
 	}
 
 	@Override

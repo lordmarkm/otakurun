@@ -5,6 +5,9 @@ import com.badlogic.gdx.graphics.GL10;
 import com.baldwin.libgdx.commons.BasePlatform;
 import com.baldwin.libgdx.commons.SimpleTiledMapHelper;
 
+/**
+ *Very first test class
+ */
 public class _1TestBackground extends BasePlatform {
 	/**
 	 * The time the last frame was rendered, used for throttling framerate
