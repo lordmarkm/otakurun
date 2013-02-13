@@ -11,6 +11,6 @@ public class Main {
 		cfg.width = 480;
 		cfg.height = 320;
 		
-		new LwjglApplication(new TestProjectiles(), cfg);
+		new LwjglApplication(new _6TestHUD(), cfg);
 	}
 }

@@ -11,6 +11,8 @@ public enum TokineState {
 	airborne_falling,
 	landing, 
 	ketsu,
-	ketsu_in_air
+	ketsu_in_air,
+	metsu,
+	metsu_in_air
 
 }

@@ -6,6 +6,7 @@ public enum Command {
 	move_right,
 	move_left,
 	jump,
-	fire
+	fire,	//ketsu, renamed so it doesn't class with the TokineStates enum
+	makebox //^ same
 	
 }

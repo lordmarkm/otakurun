@@ -65,6 +65,15 @@ import com.baldwin.libgdx.commons.entity.StatefulSprite;
  * 187,458 27x59
  * 229,458 24x59
  * 
+ * Metsu
+ * 392,381 46x52
+ * 445,381 46x52
+ * 493,381 46x52
+ * 545,381 46x52
+ * 595,381 46x52
+ * 648,381 22x52
+ * 675,381 28x52
+ * 
  * @author mbmartinez
  * 
  * Handle only animations here! Movement, acceleration, collisions, etc should
@@ -139,12 +148,23 @@ public class TokineSprite extends StatefulSprite {
 		sequences.put(TokineState.ketsu, ketsu);
 		
 		TextureRegion aket1 = new TextureRegion(sheet, 58, 458, 36, 59);
-		TextureRegion aket2 = new TextureRegion(sheet, 99, 458, 35, 59);
-		TextureRegion aket3 = new TextureRegion(sheet, 141, 458, 34, 59);
-		TextureRegion aket4 = new TextureRegion(sheet, 187, 458, 27, 59);
-		TextureRegion aket5 = new TextureRegion(sheet, 229, 458, 24, 59);
-		Animation airketsu = new Animation(0.15f, aket1, aket2, aket3, aket4, aket5, aket5);
+		TextureRegion aket2 = new TextureRegion(sheet, 99, 458, 36, 59);
+		TextureRegion aket3 = new TextureRegion(sheet, 141, 458, 36, 59);
+		TextureRegion aket4 = new TextureRegion(sheet, 187, 458, 36, 59);
+		TextureRegion aket5 = new TextureRegion(sheet, 229, 458, 36, 59);
+		Animation airketsu = new Animation(0.065f, aket1, aket2, aket3, aket4, aket5, aket5);
 		sequences.put(TokineState.ketsu_in_air, airketsu);
+		
+		TextureRegion met1 = new TextureRegion(sheet, 392, 381, 46, 52);
+		TextureRegion met2 = new TextureRegion(sheet, 445, 381, 46, 52);
+		TextureRegion met3 = new TextureRegion(sheet, 493, 381, 46, 52);
+		TextureRegion met4 = new TextureRegion(sheet, 545, 381, 46, 52);
+		TextureRegion met5 = new TextureRegion(sheet, 595, 381, 46, 52);
+		TextureRegion met6 = new TextureRegion(sheet, 648, 381, 22, 52);
+		TextureRegion met7 = new TextureRegion(sheet, 675, 381, 28, 52);
+		Animation metsu = new Animation(0.065f, met1, met2, met3, met4, met5, met6, met7, met7);
+		sequences.put(TokineState.metsu, metsu);
+		sequences.put(TokineState.metsu_in_air, metsu);
 		
 		this.state = TokineState.ready;
 	}

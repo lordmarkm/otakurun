@@ -2,11 +2,10 @@ package com.baldwin.otakurun;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.math.Vector2;
 import com.baldwin.libgdx.commons.BasePlatform;
 import com.baldwin.libgdx.commons.SimpleTiledMapHelper;
 
-public class TestBackground extends BasePlatform {
+public class _1TestBackground extends BasePlatform {
 	/**
 	 * The time the last frame was rendered, used for throttling framerate
 	 */

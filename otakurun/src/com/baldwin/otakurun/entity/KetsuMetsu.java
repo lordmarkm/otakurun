@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.baldwin.libgdx.commons.entity.Renderable;
+import com.baldwin.libgdx.commons.util.DisposableObjectPool;
 import com.baldwin.libgdx.physics.Constants;
 
 public class KetsuMetsu implements Renderable {
@@ -23,7 +24,8 @@ public class KetsuMetsu implements Renderable {
 	public KetsuMetsuType type;
 	public boolean faceright;
 	public Vector2 position;
-	
+
+	private DisposableObjectPool pool = DisposableObjectPool.getInstance();
 	private World world;
 	public Body body;
 	public KetsuMetsuSprite sprite;
@@ -68,14 +70,22 @@ public class KetsuMetsu implements Renderable {
 		
 		sprite = new KetsuMetsuSprite();
 		
-		state = KetsuMetsuState.travel;
+		switch(type) {
+		case ketsu:
+			state = KetsuMetsuState.ketsu_travel;
+			break;
+		case metsu:
+			state = KetsuMetsuState.metsu_travel;
+			break;
+		}
+		
 	}
 	
 	public enum KetsuMetsuType {ketsu, metsu}
 
 	@Override
 	public void render(SpriteBatch batch, Camera camera) {
-		TextureRegion frame = sprite.getSequence().getKeyFrame(stateTime, true);
+		TextureRegion frame = sprite.getSequence().getKeyFrame(stateTime, false);
 		
 		/**
 		 * CRITICALLY IMPORTANT - Project sprite's world coordinates to window coordinates
@@ -86,11 +96,25 @@ public class KetsuMetsu implements Renderable {
 		batch.draw(frame, pos.x, pos.y);	
 	}
 
+	private boolean eventHandled = false; //handle events only once
 	@Override
 	public void update() {
 		stateTime += Gdx.graphics.getDeltaTime();
 		
-		//if collide, do something
+		//handle events
+		if(!eventHandled) {
+			//if collide, do something
+			
+			//if metsu expires, make cube
+			if(type == KetsuMetsuType.metsu && isAnimationFinished()) {
+				System.out.println("Creating metsu block");
+				MetsuBlock block = new MetsuBlock(world, this);
+				pool.add(block);
+				eventHandled = true;
+			} 
+			
+			
+		}
 		
 		sprite.state = this.state;
 	}
@@ -108,8 +132,10 @@ public class KetsuMetsu implements Renderable {
 	private boolean isAnimationFinished() {
 		int frame = sprite.getSequence().getKeyFrameIndex(stateTime);
 		switch(state) {
-		case travel:
+		case ketsu_travel:
 			return frame == 10;
+		case metsu_travel: //is just reversed version of ^, but apparently libgdx still indexes 1->x even with playmode = reversed 
+			return frame == 1;
 		case explode:
 			return frame == 5;
 		default:

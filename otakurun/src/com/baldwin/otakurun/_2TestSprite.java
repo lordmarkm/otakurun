@@ -10,7 +10,7 @@ import com.baldwin.otakurun.entity.TokineSprite;
  * 2nd class written, after TestBackground
  * @author mbmartinez
  */
-public class TestSprite extends BasePlatform {
+public class _2TestSprite extends BasePlatform {
 	/**
 	 * The time the last frame was rendered, used for throttling framerate
 	 */
