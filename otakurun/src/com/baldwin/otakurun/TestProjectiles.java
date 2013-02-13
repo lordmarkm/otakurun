@@ -80,10 +80,10 @@ public class TestProjectiles extends BasePlatform {
 		 * sprites and map.
 		 */
 		camera.update();
-		debugRenderer.render(world, tiledMapHelper.getCamera().combined.scale(
-				Constants.PIXELS_PER_METER,
-				Constants.PIXELS_PER_METER,
-				Constants.PIXELS_PER_METER));
+//		debugRenderer.render(world, tiledMapHelper.getCamera().combined.scale(
+//				Constants.PIXELS_PER_METER,
+//				Constants.PIXELS_PER_METER,
+//				Constants.PIXELS_PER_METER));
 		
 		if (now - lastRender < 30000000) { // 30 ms, ~33FPS
 			try {

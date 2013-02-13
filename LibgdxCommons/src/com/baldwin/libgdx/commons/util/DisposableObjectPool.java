@@ -20,6 +20,7 @@ public class DisposableObjectPool {
 	}
 	
 	public void update() {
+		System.out.println("Updating " + renderables.size() + " renderables");
 		for(Iterator<Renderable> i = renderables.iterator(); i.hasNext();) {
 			Renderable r = i.next();
 			r.update();
