@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.baldwin.libgdx.commons.BasePlatform;
 import com.baldwin.libgdx.commons.CollidingTiledMapHelper;
 import com.baldwin.libgdx.commons.entity.Entity;
@@ -25,6 +26,8 @@ public class _6TestHUD extends BasePlatform {
 	
 	private World world;
 	private Entity tokine;
+	
+	private Stage stage;
 	
 	@SuppressWarnings("unused")
 	private Box2DDebugRenderer debugRenderer;
