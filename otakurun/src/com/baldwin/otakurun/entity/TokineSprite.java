@@ -58,6 +58,13 @@ import com.baldwin.libgdx.commons.entity.StatefulSprite;
  * 185,383 30x50
  * 221,383 30x50
  * 
+ * Ketsu in air
+ * 58,458 36x59
+ * 99,458 35x59
+ * 141,458 34x59
+ * 187,458 27x59
+ * 229,458 24x59
+ * 
  * @author mbmartinez
  * 
  * Handle only animations here! Movement, acceleration, collisions, etc should
@@ -130,7 +137,14 @@ public class TokineSprite extends StatefulSprite {
 		TextureRegion ket5 = new TextureRegion(sheet, 221, 383, 30, 50);
 		Animation ketsu = new Animation(0.15f, ket1, ket2, ket3, ket4, ket5, ket5);
 		sequences.put(TokineState.ketsu, ketsu);
-		sequences.put(TokineState.ketsu_in_air, ketsu);
+		
+		TextureRegion aket1 = new TextureRegion(sheet, 58, 458, 36, 59);
+		TextureRegion aket2 = new TextureRegion(sheet, 99, 458, 35, 59);
+		TextureRegion aket3 = new TextureRegion(sheet, 141, 458, 34, 59);
+		TextureRegion aket4 = new TextureRegion(sheet, 187, 458, 27, 59);
+		TextureRegion aket5 = new TextureRegion(sheet, 229, 458, 24, 59);
+		Animation airketsu = new Animation(0.15f, aket1, aket2, aket3, aket4, aket5, aket5);
+		sequences.put(TokineState.ketsu_in_air, airketsu);
 		
 		this.state = TokineState.ready;
 	}
