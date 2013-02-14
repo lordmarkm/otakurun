@@ -22,11 +22,14 @@ import com.baldwin.libgdx.commons.entity.Entity;
 import com.baldwin.libgdx.commons.util.DisposableObjectPool;
 import com.baldwin.libgdx.physics.Constants;
 import com.baldwin.otakurun.entity.KetsuMetsu.KetsuMetsuType;
+import com.baldwin.otakurun.hud.HUD;
 
 public class Tokine extends Entity {
 
 	public final static float body_width = 30f;
 	public final static float body_height = 50f;
+	private final static float run_speed = 3f;
+	private final static float max_vertical_speed = 6f;
 	
 	public TokineState state;
 	public boolean faceright = true;
@@ -39,7 +42,15 @@ public class Tokine extends Entity {
 	private DisposableObjectPool pool = DisposableObjectPool.getInstance();
 	
 	private int power = 4;
-	private boolean ketsuspawned = false; //spawn ketsu only once every frame, not every update
+	
+	final Vector2 jumpImpulse = new Vector2(0f, 10f);
+	final Vector2 leftImpulse = new Vector2(-0.55f, 0f);
+	final Vector2 rightImpulse = new Vector2(0.55f, 0f);
+	
+	//nerfed impulses while airborne
+	final Vector2 dblJumpImpulse = new Vector2(0f, 1f);
+//	final Vector2 airborne_leftImpulse = new Vector2(-0.55f, 0f);
+//	final Vector2 airborne_rightImpulse = new Vector2(0.55f, 0f);
 	
 	public Tokine() {
 		this.sprite = new TokineSprite();
@@ -66,15 +77,6 @@ public class Tokine extends Entity {
 		tokineShape.dispose();
 	}
 
-	final Vector2 jumpImpulse = new Vector2(0f, 2f);
-	final Vector2 leftImpulse = new Vector2(-0.15f, 0f);
-	final Vector2 rightImpulse = new Vector2(0.15f, 0f);
-	
-	//nerfed impulses while airborne
-	final Vector2 dblJumpImpulse = new Vector2(0f, 1f);
-	final Vector2 airborne_leftImpulse = new Vector2(-0.05f, 0f);
-	final Vector2 airborne_rightImpulse = new Vector2(0.05f, 0f);
-	
 	@Override
 	public void update() {
 		stateTime += Gdx.graphics.getDeltaTime();
@@ -94,18 +96,23 @@ public class Tokine extends Entity {
 			case ready:
 				switch(command) {
 				case jump:
+					jump();
 					state(jump_start);
 					break;
 				case move_left:
+					run();
 					state(accelerating);
 					break;
 				case move_right:
+					run();
 					state(accelerating);
 					break;
 				case fire:
+					spawnKetsu(power);
 					state(ketsu);
 					break;
 				case makebox:
+					spawnMetsu();
 					state(metsu);
 					break;
 				}
@@ -113,24 +120,27 @@ public class Tokine extends Entity {
 			case accelerating:
 				switch(command) {
 				case jump:
+					jump();
 					state(jump_start);
 					break;
 				case move_left:
-					body.applyLinearImpulse(leftImpulse, body.getWorldCenter());
+					run();
 					if(isAnimationFinished(sprite.getSequence())) {
 						state(run);	
 					}
 					break;
 				case move_right:
-					body.applyLinearImpulse(rightImpulse, body.getWorldCenter());
+					run();
 					if(isAnimationFinished(sprite.getSequence())) {
 						state(run);	
 					}
 					break;
 				case fire:
+					spawnKetsu(power);
 					state(ketsu);
 					break;
 				case makebox:
+					spawnMetsu();
 					state(metsu);
 					break;
 				}
@@ -138,18 +148,21 @@ public class Tokine extends Entity {
 			case run:
 				switch(command) {
 				case jump:
+					jump();
 					state(jump_start);
 					break;
 				case move_left:
-					body.applyLinearImpulse(leftImpulse, body.getWorldCenter());
+					run();
 					break;
 				case move_right:
-					body.applyLinearImpulse(rightImpulse, body.getWorldCenter());
+					run();
 					break;	
 				case fire:
+					spawnKetsu(power);
 					state(ketsu);
 					break;
 				case makebox:
+					spawnMetsu();
 					state(metsu);
 					break;
 				}
@@ -157,15 +170,17 @@ public class Tokine extends Entity {
 			case jump_start:
 				switch(command) {
 				case move_left:
-					body.applyLinearImpulse(leftImpulse, body.getWorldCenter());
+					run();
 					break;
 				case move_right:
-					body.applyLinearImpulse(rightImpulse, body.getWorldCenter());
+					run();
 					break;
 				case fire:
+					spawnKetsu(power);
 					state(ketsu_in_air);
 					break;
 				case makebox:
+					spawnMetsu();
 					state(metsu);
 					break;
 				}
@@ -173,15 +188,17 @@ public class Tokine extends Entity {
 			case airborne_rising:
 				switch(command) {
 				case move_left:
-					body.applyLinearImpulse(airborne_leftImpulse, body.getWorldCenter());
+					airControl();
 					break;
 				case move_right:
-					body.applyLinearImpulse(airborne_rightImpulse, body.getWorldCenter());
+					airControl();
 					break;
 				case fire:
+					spawnKetsu(power);
 					state(ketsu_in_air);
 					break;
 				case makebox:
+					spawnMetsu();
 					state(metsu);
 					break;
 				}
@@ -189,15 +206,17 @@ public class Tokine extends Entity {
 			case airborne_falling:
 				switch(command) {
 				case move_left:
-					body.applyLinearImpulse(airborne_leftImpulse, body.getWorldCenter());
+					airControl();
 					break;
 				case move_right:
-					body.applyLinearImpulse(airborne_rightImpulse, body.getWorldCenter());
+					airControl();
 					break;
 				case fire:
+					spawnKetsu(power);
 					state(ketsu_in_air);
 					break;
 				case makebox:
+					spawnMetsu();
 					state(metsu);
 					break;
 				}
@@ -205,25 +224,32 @@ public class Tokine extends Entity {
 			case landing:
 				switch(command) {
 				case jump:
-					body.applyLinearImpulse(jumpImpulse, body.getWorldCenter());
+					jump();
 					state(jump_start);
 					break;
 				case move_left:
-					body.applyLinearImpulse(leftImpulse, body.getWorldCenter());
+					run();
 					state(accelerating);
 					break;
 				case move_right:
-					body.applyLinearImpulse(rightImpulse, body.getWorldCenter());
+					run();
 					state(accelerating);
 					break;
 				case fire:
+					spawnKetsu(power);
 					state(ketsu);
 					break;
 				case makebox:
+					spawnMetsu();
 					state(metsu);
 					break;
 				}
 				break;
+			case ketsu:
+			case metsu:
+				break;
+			default:
+				throw new RuntimeException("Unhandled state: " + state);
 			}
 		}
 		
@@ -266,7 +292,6 @@ public class Tokine extends Entity {
 			}
 			break;
 		case jump_start:
-			body.applyLinearImpulse(jumpImpulse, body.getWorldCenter());
 			if(isAnimationFinished(sprite.getSequence())) {
 				state(airborne_rising);
 			}
@@ -283,18 +308,11 @@ public class Tokine extends Entity {
 			}
 			break;
 		case ketsu:
-			if(sprite.getSequence().getKeyFrameIndex(stateTime) == 1) {
-				spawnKetsu(power);
-			}
 			if(isAnimationFinished(sprite.getSequence())) {
 				state(ready);
-				ketsuspawned = false;
 			}
 			break;
 		case ketsu_in_air:
-			if(sprite.getSequence().getKeyFrameIndex(stateTime) == 1) {
-				spawnKetsu(power);
-			}
 			if(isAnimationFinished(sprite.getSequence())) {
 				if(body.getLinearVelocity().y > 0) {
 					state(airborne_rising);
@@ -303,22 +321,14 @@ public class Tokine extends Entity {
 				} else {
 					state(ready);
 				}
-				ketsuspawned = false;
 			}
 			break;
 		case metsu:
-			if(sprite.getSequence().getKeyFrameIndex(stateTime) == 1) {
-				spawnMetsu();
-			}
 			if(isAnimationFinished(sprite.getSequence())) {
 				state(ready);
-				ketsuspawned = false;
 			}
 			break;
 		case metsu_in_air:
-			if(sprite.getSequence().getKeyFrameIndex(stateTime) == 1) {
-				spawnMetsu();
-			}
 			if(isAnimationFinished(sprite.getSequence())) {
 				if(body.getLinearVelocity().y > 0) {
 					state(airborne_rising);
@@ -327,7 +337,6 @@ public class Tokine extends Entity {
 				} else {
 					state(ready);
 				}
-				ketsuspawned = false;
 			}
 			break;
 		}
@@ -335,16 +344,34 @@ public class Tokine extends Entity {
 		sprite.state = this.state;
 		
 		//throttle velocity?
-		if(body.getLinearVelocity().x > 4) {
-			body.setLinearVelocity(4, body.getLinearVelocity().y);
-		} else if(body.getLinearVelocity().x < -4) {
-			body.setLinearVelocity(-4, body.getLinearVelocity().y);
+		if(body.getLinearVelocity().x > run_speed) {
+			body.setLinearVelocity(run_speed, body.getLinearVelocity().y);
+		} else if(body.getLinearVelocity().x < -run_speed) {
+			body.setLinearVelocity(-run_speed, body.getLinearVelocity().y);
 		}
-		if(body.getLinearVelocity().y > 4) {
-			body.setLinearVelocity(body.getLinearVelocity().x, 4);
-		} else if(body.getLinearVelocity().y < -4) {
-			body.setLinearVelocity(body.getLinearVelocity().x, -4);
+		
+		if(body.getLinearVelocity().y > max_vertical_speed) {
+			body.setLinearVelocity(body.getLinearVelocity().x, max_vertical_speed);
+		} else if(body.getLinearVelocity().y < -max_vertical_speed) {
+			body.setLinearVelocity(body.getLinearVelocity().x, -max_vertical_speed);
 		}
+	}
+	
+	private void impulse(Vector2 impulse) {
+		body.applyLinearImpulse(impulse, body.getWorldCenter());
+	}
+	
+	private void run() {
+//		impulse(faceright ? rightImpulse : leftImpulse);
+		body.setLinearVelocity(faceright ? run_speed : -run_speed, body.getLinearVelocity().y);
+	}
+	
+	private void jump() {
+		impulse(jumpImpulse);
+	}
+	
+	private void airControl() {
+		body.setLinearVelocity(faceright ? run_speed : -run_speed, body.getLinearVelocity().y);
 	}
 	
 	private List<Command> handleInput() {
@@ -358,23 +385,23 @@ public class Tokine extends Entity {
 		case ready:
 		case landing:
 			//fire and makebox commands exclude all other commands
-			if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+			if(Gdx.input.isKeyPressed(Input.Keys.SPACE) || HUD.ketsu.isPressed()) {
 				commands.add(fire);
 				return commands;
 			} 
 			
-			if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
+			if(Gdx.input.isKeyPressed(Input.Keys.Q) || HUD.metsu.isPressed()) {
 				commands.add(makebox);
 				return commands;
 			}
 			
-			if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isTouched()) {
+			if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || HUD.jump.isPressed()) {
 				commands.add(jump);
 			}
-			if(Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
+			if(Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT) || HUD.right.isPressed()) {
 				commands.add(move_right);
 				faceright = true;
-			} else if(Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
+			} else if(Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || HUD.left.isPressed()) {
 				commands.add(move_left);
 				faceright = false;
 			}
@@ -383,19 +410,19 @@ public class Tokine extends Entity {
 		case airborne_rising:
 		case airborne_falling:
 			//fire and makebox commands exclude all other commands
-			if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+			if(Gdx.input.isKeyPressed(Input.Keys.SPACE) || HUD.ketsu.isPressed()) {
 				commands.add(fire);
 				return commands;
 			}
-			if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
+			if(Gdx.input.isKeyPressed(Input.Keys.Q) || HUD.metsu.isPressed()) {
 				commands.add(makebox);
 				return commands;
 			}
 			
-			if(Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
+			if(Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT) || HUD.right.isPressed()) {
 				commands.add(move_right);
 				faceright = true;
-			} else if(Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
+			} else if(Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || HUD.left.isPressed()) {
 				commands.add(move_left);
 				faceright = false;
 			}
@@ -414,8 +441,8 @@ public class Tokine extends Entity {
 	}
 
 	private void state(TokineState state) {
-		System.out.println("State change: " + this.state + "->" + state);
 		this.state = state;
+		sprite.state = state;
 		stateTime = 0;
 	}
 	
@@ -423,37 +450,37 @@ public class Tokine extends Entity {
 	 * Animation.isAnimationFinished() doesn't quite work the way I expected it to
 	 */
 	private boolean isAnimationFinished(Animation animation) {
-//		return animation.isAnimationFinished(stateTime);
-		int index = animation.getKeyFrameIndex(stateTime);
+		int lastFrame = 0;
 		switch(state) {
 		case accelerating:
-			if(index >= 1) return true; 
+			lastFrame = 1;
 			break;
 		case decelerating:
-			if(index >= 4) return true;
+			lastFrame = 4;
 			break;
 		case jump_start:
-			if(index >= 2) return true;
+			lastFrame = 2;
 			break;
 		case landing:
-			if(index >= 2) return true;
+			lastFrame = 2;
 			break;
 		case ketsu:
-			if(index >= 5) return true;
+			lastFrame = 5;
 			break;
 		case ketsu_in_air:
-			if(index >= 5) return true;
+			lastFrame = 5;
 			break;
 		case metsu:
-			if(index >= 7) return true;
+			lastFrame = 7;
 			break;
 		case metsu_in_air:
-			if(index >= 7) return true;
+			lastFrame = 7;
 			break;
 		default: 
 			throw new IllegalStateException("Unhandled state: " + state);
 		}
-		return false;
+		int noLoopFrame = (int) Math.floor(stateTime / sprite.getSequence().frameDuration);
+		return noLoopFrame > lastFrame;
 	}
 	
 	@Override
@@ -481,23 +508,21 @@ public class Tokine extends Entity {
 	}
 	
 	private void spawnKetsu(int power) {
-		if(ketsuspawned) return;
 		for(int i = 0; i < power; i++) {
 			KetsuMetsu ketsu = new KetsuMetsu(body.getWorld(), this, KetsuMetsuType.ketsu);
 			pool.add(ketsu);
-			ketsuspawned = true;
 		}
 	}
 	
 	private void spawnMetsu() {
-		if(ketsuspawned) return;
 		KetsuMetsu metsu = new KetsuMetsu(body.getWorld(), this, KetsuMetsuType.metsu);
 		pool.add(metsu);
-		ketsuspawned = true;
 	}
 	
 	@Override
 	public boolean isDisposable() {return false;}
 	@Override
 	public void dispose() {}
+	
+
 }

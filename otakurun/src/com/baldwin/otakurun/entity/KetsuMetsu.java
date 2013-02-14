@@ -32,7 +32,7 @@ public class KetsuMetsu implements Renderable {
 
 	private KetsuMetsuState state;
 	
-	private float stateTime = 0f;
+	private volatile float stateTime = 0f;
 	
 	public KetsuMetsu(World world, Tokine tokine, KetsuMetsuType type) {
 		this.world = world;
@@ -107,10 +107,11 @@ public class KetsuMetsu implements Renderable {
 			
 			//if metsu expires, make cube
 			if(type == KetsuMetsuType.metsu && isAnimationFinished()) {
-				System.out.println("Creating metsu block");
+				System.out.println("Spawning metsu block.");
 				MetsuBlock block = new MetsuBlock(world, this);
 				pool.add(block);
 				eventHandled = true;
+
 			} 
 			
 			
@@ -126,21 +127,27 @@ public class KetsuMetsu implements Renderable {
 
 	@Override
 	public void dispose() {
+		sprite.dispose();
 		world.destroyBody(body);
 	}
 	
 	private boolean isAnimationFinished() {
-		int frame = sprite.getSequence().getKeyFrameIndex(stateTime);
+		int lastFrame = 0;
 		switch(state) {
 		case ketsu_travel:
-			return frame == 10;
+			lastFrame = 10;
+			break;
 		case metsu_travel: //is just reversed version of ^, but apparently libgdx still indexes 1->x even with playmode = reversed 
-			return frame == 1;
+			lastFrame = 10;
+			break;
 		case explode:
-			return frame == 5;
+			lastFrame = 5;
+			break;
 		default:
 			throw new IllegalStateException("Unsupported state: " + state);
 		}
+		int noLoopFrame = (int) Math.floor(stateTime / sprite.getSequence().frameDuration);
+		return noLoopFrame > lastFrame;
 	}
 	
 	private Vector3 getPosition() {

@@ -3,7 +3,6 @@ package com.baldwin.otakurun.entity;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Array;
 import com.baldwin.libgdx.commons.entity.StatefulSprite;
 
 /**
@@ -39,12 +38,17 @@ public class KetsuMetsuSprite extends StatefulSprite {
 		Animation ketsu = new Animation(0.065f, ket1, ket2, ket3, ket4, ket5, ket6, ket7, ket8, ket9, ket10, ket10);
 		sequences.put(KetsuMetsuState.ketsu_travel, ketsu);
 		
-		Animation metsu = new Animation(0.065f, new Array<TextureRegion>(new TextureRegion[]{ket1, ket1, ket2, ket3, ket4, ket5, ket6, ket7, ket8, ket9, ket10}), Animation.REVERSED);
+		Animation metsu = new Animation(0.065f, ket10, ket9, ket8, ket7, ket6, ket5, ket4, ket3, ket2, ket1, ket1);
 		sequences.put(KetsuMetsuState.metsu_travel, metsu);
 	}
 	
 	public KetsuMetsuSprite() {
 		super();
 		this.state = KetsuMetsuState.ketsu_travel;
+	}
+
+	public void dispose() {
+		// TODO Auto-generated method stub
+		
 	}
 }

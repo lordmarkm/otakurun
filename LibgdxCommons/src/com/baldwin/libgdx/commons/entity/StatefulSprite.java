@@ -11,7 +11,7 @@ import com.baldwin.libgdx.commons.util.SpriteMap;
 public abstract class StatefulSprite {
 
 	public Object state;
-	protected Texture sheet;
+	protected static Texture sheet;
 	protected static SpriteMap sequences = new SpriteMap();
 	
 	public Animation getSequence() {
