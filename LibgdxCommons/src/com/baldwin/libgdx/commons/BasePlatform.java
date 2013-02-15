@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.World;
+import com.baldwin.libgdx.commons.util.DisposableObjectPool;
 
 public abstract class BasePlatform implements ApplicationListener, GestureListener {
 
@@ -15,6 +17,8 @@ public abstract class BasePlatform implements ApplicationListener, GestureListen
 	protected int CAM_HEIGHT = 480;
 	
 	protected SpriteBatch batch;
+	protected World world;
+	protected DisposableObjectPool pool;
 	
 	@Override
 	public void create() {
@@ -22,6 +26,14 @@ public abstract class BasePlatform implements ApplicationListener, GestureListen
 		camera.setToOrtho(false, CAM_WIDTH, CAM_HEIGHT);
 		
 		batch = new SpriteBatch();
+		
+		/**
+		 * You can set the world's gravity in its constructor. Here, the gravity
+		 * is negative in the y direction (as in, pulling things down).
+		 */
+		world = new World(new Vector2(0.0f, -10.0f), true);
+		
+		pool = DisposableObjectPool.getInstance();
 	}
 	
 	protected void clearScreen() {

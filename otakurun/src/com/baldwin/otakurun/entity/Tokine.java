@@ -58,7 +58,7 @@ public class Tokine extends Entity {
 	}
 
 	@Override
-	public void initBody(World world, float pixelsPerMeter) {
+	public void initBody(World world) {
 		BodyDef tokineBodyDef = new BodyDef();
 		tokineBodyDef.type = BodyDef.BodyType.DynamicBody;
 		tokineBodyDef.position.set(1f, 1f);
@@ -66,7 +66,7 @@ public class Tokine extends Entity {
 		body.setFixedRotation(true);
 
 		PolygonShape tokineShape = new PolygonShape();
-		tokineShape.setAsBox(body_width / (2*pixelsPerMeter), body_height / (2*pixelsPerMeter));
+		tokineShape.setAsBox(body_width / (2*Constants.PIXELS_PER_METER), body_height / (2*Constants.PIXELS_PER_METER));
 
 		FixtureDef tokineFixtureDef = new FixtureDef();
 		tokineFixtureDef.shape = tokineShape;

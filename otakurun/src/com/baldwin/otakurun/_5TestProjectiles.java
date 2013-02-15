@@ -42,16 +42,8 @@ public class _5TestProjectiles extends BasePlatform {
 
 		camera = (OrthographicCamera) tiledMapHelper.prepareCamera(screenWidth, screenHeight);
 
-		/**
-		 * You can set the world's gravity in its constructor. Here, the gravity
-		 * is negative in the y direction (as in, pulling things down).
-		 */
-		world = new World(new Vector2(0.0f, -10.0f), true);
-		
-		pool = DisposableObjectPool.getInstance();
-		
 		tokine = new Tokine();
-		tokine.initBody(world, Constants.PIXELS_PER_METER);
+		tokine.initBody(world);
 
 		tiledMapHelper.loadCollisions(world);
 

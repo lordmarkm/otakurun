@@ -31,7 +31,6 @@ public class _6TestHUD extends BasePlatform {
 	private int screenWidth;
 	private int screenHeight;
 	
-	private World world;
 	private Tokine tokine;
 	
 	private Stage stage;
@@ -39,41 +38,29 @@ public class _6TestHUD extends BasePlatform {
 	@SuppressWarnings("unused")
 	private Box2DDebugRenderer debugRenderer;
 	
-	private DisposableObjectPool pool;
-	
 	@Override
 	public void create() {
 		super.create();
 		screenWidth = Gdx.graphics.getWidth();
 		screenHeight = Gdx.graphics.getHeight();
+
 		tiledMapHelper = new CollidingTiledMapHelper();
 		tiledMapHelper.setResourceDirectory("data/tiledmap/cave");
 		tiledMapHelper.loadMap("data/tiledmap/cave/cave.tmx");
-
+		tiledMapHelper.loadCollisions(world);
 		camera = (OrthographicCamera) tiledMapHelper.prepareCamera(screenWidth, screenHeight);
-
-		/**
-		 * You can set the world's gravity in its constructor. Here, the gravity
-		 * is negative in the y direction (as in, pulling things down).
-		 */
-		world = new World(new Vector2(0.0f, -10.0f), true);
-		
-		pool = DisposableObjectPool.getInstance();
 		
 		tokine = new Tokine();
-		tokine.initBody(world, Constants.PIXELS_PER_METER);
-
-		tiledMapHelper.loadCollisions(world);
+		tokine.initBody(world);
 		
 		initHUD();
 		
 		debugRenderer = new Box2DDebugRenderer(true, true, true, true, true);
 
 		lastRender = System.nanoTime();
-		
 	}
 
-	private void initHUD() {
+	protected void initHUD() {
 		float btnOffsetFromBottom = 10f;
 		
 		stage = new Stage(screenWidth, screenHeight, true, batch);

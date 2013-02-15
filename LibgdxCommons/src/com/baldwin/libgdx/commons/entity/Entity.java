@@ -11,7 +11,7 @@ public abstract class Entity implements Renderable {
 
 	public Body body;
 	public StatefulSprite sprite;
-	public abstract void initBody(World world, float pixelsPerMeter);
+	public abstract void initBody(World world);
 	public abstract void update();
 	
 }
